@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<meta name=viewport
+	content="width=device-width, initial-scale=1,user-scalable=0">
+<link rel="stylesheet" href="../css/core.css">
+<link rel="stylesheet" href="../css/main.css">
+<title>하상진 - 졸업작품</title>
+
+</head>
+
+
+<body>
+	<div class="page-hdr">문화유산 블로그 - 메인페이지</div>
+	<div class="page-body">
+		<div class="page-mnu">
+			<div class="menu" onclick="addFeed()">글쓰기</div>
+			<div class="menu" onclick="showFriends()">친구보기</div>
+			<div class="menu" onclick="showUserInfo()">내정보</div>
+		</div>
+		<div id="list" class="section"></div>
+		>
+		<div class="section mtop-10 mbot-30 pad-16">
+			<div class="button" onclick="getNext()">작성글 더보기</div>
+		</div>
+	</div>
+	<div class="page-footer">CopyRight : 2017400029 문화ICT융합전공 하상진</div>
+
+
+</body>
+</html>
+
+<script src="../js/jquery-3.7.0.min.js"></script>
+<script src="../js/core.js"></script>
+<script>
+	$(document).ready(function() {
+		Page.init(start);
+	});
+
+	var feedList = [];
+	var minNo = -1;
+	function start(uid) {
+		var feeds = DataCache.get("mainCache");
+		if (feeds != null) {
+			console.log("[start] fetch the existing feed list from DataCache ...");
+			console.log(feeds);
+			
+			feedList = feeds;
+			show(feeds);
+		} else {
+			AJAX.call("../jsp/feedGetGroup.jsp", null, function(data) {
+				var feeds = JSON.parse(data.trim());
+				console.log("[start] fetch a new feed list from the server ...");
+				console.log(feeds);
+				
+				feedList = feeds;
+				DataCache.set("mainCache", feedList);
+				show(feeds);
+			});
+		}
+	}
+
+	function show(feeds) {
+		if(feeds.length > 0){
+			minNo = feeds[feeds.length -1].no;
+		}
+		var str = "";
+		for (var i = 0; i < feeds.length; i++) {
+			str += getFeedCode(feeds[i]);
+		}
+		$("#list").append(str);
+	}
+	function getFeedCode(feed) {
+		var name = (feed.user == null) ? feed.id : feed.user.name;
+
+		var str = "<div class='feed' onclick='showFeed("+ feed.no +")'>";
+		str += "<div class='author'>";
+		if(feed.user == null || feed.user.images ==null){
+			str += "<div class='photo'></div>";
+		}else{
+			var imgurl = "../images/" + feed.user.images[0];
+			str += "<div class = 'photo' style='background-image: url(\""
+				+ imgurl + "\")'></div>";
+		}
+		str += "<div class='name'>" + name + "</div>";
+		str += "</div>";
+
+		if (feed.images != null) {
+			var imgurl = "../images/" + feed.images[0];
+			str += "<div class = 'image' style='background-image: url(\""
+					+ imgurl + "\")'></div>";
+		}
+		str += "<div class='text'>" + feed.content + "</div>";
+		str += "</div>";
+
+		return str;
+	}
+	
+	function showFeed(fno){
+		for(var i=0; i<feedList.length; i++){
+			if(feedList[i].no == fno){
+				Page.go("feedView.html",feedList[i]);
+				return;
+			}
+		}
+	}
+
+	function getNext() {
+		var params = {limit : minNo};
+		AJAX.call("../jsp/feedGetGroup.jsp", params, function(data) {
+			var feeds = JSON.parse(data.trim());
+			feedList = feedList.concat(feeds);
+			DataCache.set("mainCache", feedList);
+			show(feeds);
+		});
+	}
+
+	function addFeed() {
+		window.location.href = "feedAdd.html";
+	}
+	
+	function showFriends(){
+		window.location.href = "friend.html";
+	}
+	
+	function showUserInfo(){
+		window.location.href = "userInfo.html";
+	}
+</script>

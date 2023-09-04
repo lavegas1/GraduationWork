@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name=viewport content="width=device-width, initial-scale=1,user-scalable=0">
+<link rel="stylesheet" href="../css/core.css">
+<title>하상진 - 졸업작품</title>
+</head>
+<body>
+	<div class="page-hdr">문화유산 블로그 - 로그인</div>
+	<div class="page-body">
+		<div class="scetion pad-24 mtop-30">
+			<input type="text" id ="id" placeholder="Email address">
+			<input type="password" id="pw" class="mtop-10" placeholder="PassWord">
+			<input type="submit" class="mtop-20" value="로그인하기" onclick="login()">
+		</div>
+		
+		<div class="section pad-24 mtop-30">
+			<div class="desc mtop-20 mbot-20">
+				아이디가 없으세요?<br>
+				간단한 가입 절차를 통해 문화유산 블로그의 회원이 되실 수 있습니다.
+			</div>
+			<a href="signup.html"><div class="button">회원가입하기</div></a>
+			<a href="withdraw.html"><div class="button mtop-10">회원탈퇴하기</div></a>
+		</div>
+	</div>
+	<div class="page-footer">CopyRight : 2017400029 문화ICT융합전공 하상진</div>
+</body>
+</html>
+
+<script src="../js/jquery-3.7.0.min.js"></script>
+<script src="../js/core.js"></script>
+<script>
+function login(){
+	var id= $("#id").val().trim();
+	if(id==""){
+		alert("아이디를 입력해 주세요.");
+		$("#id").focus();
+		return;
+	}
+	var ps = $("#pw").val().trim();
+	if(ps==""){
+		alert("패스워드를 입력해 주세요.");
+		$("#pw").focus();
+		return;
+	}
+	
+	var url= "../jsp/login.jsp?id=" + id + "&pw=" + ps;
+	AJAX.call(url,null,function(data){
+		var code = data.trim();
+		if(code =="NE"){
+			alert("아이디가 존재하지 않습니다.");
+		}else if(code=="PE"){
+			alert("패스워드가 일치하지 않습니다.");
+		}else{
+			window.location.href="main.html";
+		}
+	});
+}
+
+</script>
